@@ -1,14 +1,7 @@
 %{
-    
-    #include "main.h"
-
-    #include "./Conditionals/jump.h"
-    #include "./ExecGen/exec.h"
-    #include "./TreeGen/tree.h"
-    #include "./symbolTable/symbol.h"
-    #include "./typeTable/type.h"
 
     #include "y.tab.h"
+    #include "./../Parse_Tree/parse_tree.h"
 
     int yywrap(); 
 
@@ -20,10 +13,13 @@ letter     [a-zA-Z]
 
 %%
 
-{digit}+        {   
-                    yylval.val = atoi(yytext);
-                    return NUM; 
+{digit}+        {
+                    union Constant val;
+                    val.iVal = atoi(yytext);
+                    yylval.AST_node = create_ast_node(NODE_TYPE_VALUE, NULL, val);
+                    return NUM;
                 }
+
 "+"             {   return ADD;    }
 "-"             {   return SUB;    }
 "%"             {   return MOD;    }
@@ -63,12 +59,12 @@ letter     [a-zA-Z]
 "enddecl"       {   return ENDDECL; }
 "int"           {   return INT; }
 
-"main"          {   return MAIN;    }
-"return"        {   return RETURN;  }
 
-{letter}({letter}|{digit}|_)*          {   yylval.name = strdup(yytext);
-                    return ID;  
-                }
+{letter}({letter}|{digit}|_)*          {
+                                            union Constant val;
+                                            yylval.AST_node = create_ast_node(NODE_TYPE_ID, strdup(yytext), val);
+                                            return ID;
+                                        }
 
 [ \t\n]         {   }
 [(){},\[\]]     {   return *yytext; }

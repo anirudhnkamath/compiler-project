@@ -1,0 +1,11 @@
+decl
+    int temp, i, a, b;
+enddecl
+
+begin
+    while( i < 10 ) do  
+        i = i + 1;
+        temp = a + b;
+    endwhile;
+
+end
