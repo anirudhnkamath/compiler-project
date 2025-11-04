@@ -1516,7 +1516,7 @@ yyreduce:
     {
         case 3:
 #line 42 "yacc.y"
-    { print_gstable(); }
+    { }
     break;
 
   case 4:
@@ -1541,7 +1541,7 @@ yyreduce:
 
   case 12:
 #line 62 "yacc.y"
-    { inorder((yyvsp[(2) - (3)].AST_node)); generate_3AC((yyvsp[(2) - (3)].AST_node)); }
+    { generate_3AC((yyvsp[(2) - (3)].AST_node)); }
     break;
 
   case 13:
@@ -1931,7 +1931,8 @@ yyreturn:
 extern FILE* yyin;
 
 void yyerror(const char* s){
-    printf("Error: %s\n", s);
+    printf("Error: %s", s);
+    exit(1);
     return ;
 }
 

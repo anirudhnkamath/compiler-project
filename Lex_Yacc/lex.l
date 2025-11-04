@@ -1,7 +1,6 @@
 %{
-
-    #include "y.tab.h"
     #include "./../Parse_Tree/parse_tree.h"
+    #include "y.tab.h"
 
     int yywrap(); 
 

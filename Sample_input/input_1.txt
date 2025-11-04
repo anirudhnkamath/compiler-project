@@ -1,11 +1,10 @@
 decl
-    int temp, i, a, b;
+    int temp, i, a, b, c, d;
+    int arr[10];
 enddecl
 
 begin
-    while( i < 10 ) do  
-        i = i + 1;
-        temp = a + b;
-    endwhile;
+    i = 0;
+    read(arr[arr[i]]);
 
 end

@@ -39,7 +39,7 @@ program     :   GDeclBlock Coderegion
             ;
 /* -------------------------------------------------------------------------------------------------- */
 
-GDeclBlock  :   DECL GDeclList ENDDECL          { print_gstable(); }
+GDeclBlock  :   DECL GDeclList ENDDECL          { }
             |   DECL ENDDECL                    {   }
             ;
 GDeclList   :   GDeclList GDecl
@@ -59,7 +59,7 @@ Gid         :   ID                              {  gst_install($1->name, default
 
 /* ---------------------------------------------------------------------------------- */
 
-Coderegion  :   T_BEGIN Slist T_END                 { inorder($2); generate_3AC($2); }
+Coderegion  :   T_BEGIN Slist T_END                 { generate_3AC($2); }
             ;
 Slist       :   Slist Stmt                          { $$ = create_connector_node($1, $2); }
             |   Stmt                                { $$ = $1; }
@@ -114,7 +114,8 @@ IDENTIFIERS :   ID                                  {  $$ = create_id_node($1); 
 extern FILE* yyin;
 
 void yyerror(const char* s){
-    printf("Error: %s\n", s);
+    printf("Error: %s", s);
+    exit(1);
     return ;
 }
 
