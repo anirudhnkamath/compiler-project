@@ -1,7 +1,10 @@
 #include "Tac_gen.h"
+#include <stdio.h>
 
 static int tempCount = 0;
 static int labelCount = 0;
+
+FILE *tacFile;  // Global file pointer
 
 int newTemp() {
     return ++tempCount;
@@ -27,6 +30,20 @@ int generate_expr(ast_node* node, char* result) {
             sprintf(result, "%s", node->name);
             return -1;
 
+        case NODE_TYPE_ARRAY: {
+            char index[32];
+            generate_expr(node->ptr2, index);
+
+            int tOffset = newTemp();
+            fprintf(tacFile, "t%d = %s * 4\n", tOffset, index);
+
+            int t = newTemp();
+            sprintf(result, "t%d", t);
+            fprintf(tacFile, "t%d = %s[t%d]\n", t, node->ptr1->name, tOffset);
+
+            return t;
+        }
+
         case NODE_TYPE_PLUS:
         case NODE_TYPE_MINUS:
         case NODE_TYPE_MULT:
@@ -49,7 +66,7 @@ int generate_expr(ast_node* node, char* result) {
                 default: op = '?';
             }
 
-            printf("%s = %s %c %s\n", result, left, op, right);
+            fprintf(tacFile, "%s = %s %c %s\n", result, left, op, right);
             return t;
         }
 
@@ -76,21 +93,21 @@ void generate_stmt(ast_node* node) {
             char left[32], right[32];
             generate_expr(node->ptr1, left);
             generate_expr(node->ptr2, right);
-            printf("%s = %s\n", left, right);
+            fprintf(tacFile, "%s = %s\n", left, right);
             break;
         }
 
         case NODE_TYPE_READ: {
             char id[32];
             generate_expr(node->ptr1, id);
-            printf("read %s\n", id);
+            fprintf(tacFile, "read(%s)\n", id);
             break;
         }
 
         case NODE_TYPE_WRITE: {
             char expr[32];
             generate_expr(node->ptr1, expr);
-            printf("write %s\n", expr);
+            fprintf(tacFile, "write(%s)\n", expr);
             break;
         }
 
@@ -103,17 +120,17 @@ void generate_stmt(ast_node* node) {
             int L2 = newLabel();
             int L3 = newLabel();
 
-            printf("if (%s < %s) goto L%d\n", condLeft, condRight, L1);
-            printf("goto L%d\n", L2);
+            fprintf(tacFile, "if (%s < %s) goto L%d\n", condLeft, condRight, L1);
+            fprintf(tacFile, "goto L%d\n", L2);
 
-            printf("L%d:\n", L1);
-            generate_stmt(node->ptr2); // THEN
-            printf("goto L%d\n", L3);
+            fprintf(tacFile, "L%d:\n", L1);
+            generate_stmt(node->ptr2);
+            fprintf(tacFile, "goto L%d\n", L3);
 
-            printf("L%d:\n", L2);
-            generate_stmt(node->ptr3); // ELSE
+            fprintf(tacFile, "L%d:\n", L2);
+            generate_stmt(node->ptr3);
 
-            printf("L%d:\n", L3);
+            fprintf(tacFile, "L%d:\n", L3);
             break;
         }
 
@@ -125,58 +142,61 @@ void generate_stmt(ast_node* node) {
             int L1 = newLabel();
             int L2 = newLabel();
 
-            printf("if (%s < %s) goto L%d\n", condLeft, condRight, L1);
-            printf("goto L%d\n", L2);
+            fprintf(tacFile, "if (%s < %s) goto L%d\n", condLeft, condRight, L1);
+            fprintf(tacFile, "goto L%d\n", L2);
 
-            printf("L%d:\n", L1);
+            fprintf(tacFile, "L%d:\n", L1);
             generate_stmt(node->ptr2);
-            printf("L%d:\n", L2);
+
+            fprintf(tacFile, "L%d:\n", L2);
             break;
         }
 
         case NODE_TYPE_WHILE: {
-            int L1 = newLabel(); // condition
-            int L2 = newLabel(); // body
-            int L3 = newLabel(); // exit
+            int L1 = newLabel();
+            int L2 = newLabel();
+            int L3 = newLabel();
 
-            printf("L%d:\n", L1);
+            fprintf(tacFile, "L%d:\n", L1);
+
             char condLeft[32], condRight[32];
             generate_expr(node->ptr1->ptr1, condLeft);
             generate_expr(node->ptr1->ptr2, condRight);
 
-            printf("if (%s < %s) goto L%d\n", condLeft, condRight, L2);
-            printf("goto L%d\n", L3);
+            fprintf(tacFile, "if (%s < %s) goto L%d\n", condLeft, condRight, L2);
+            fprintf(tacFile, "goto L%d\n", L3);
 
-            printf("L%d:\n", L2);
+            fprintf(tacFile, "L%d:\n", L2);
             generate_stmt(node->ptr2);
-            printf("goto L%d\n", L1);
+            fprintf(tacFile, "goto L%d\n", L1);
 
-            printf("L%d:\n", L3);
+            fprintf(tacFile, "L%d:\n", L3);
             break;
         }
 
         case NODE_TYPE_REPEAT: {
-            int L1 = newLabel(); // loop start
-            printf("L%d:\n", L1);
+            int L1 = newLabel();
+            fprintf(tacFile, "L%d:\n", L1);
             generate_stmt(node->ptr2);
 
             char condLeft[32], condRight[32];
             generate_expr(node->ptr1->ptr1, condLeft);
             generate_expr(node->ptr1->ptr2, condRight);
-            printf("if (%s < %s) goto L%d\n", condLeft, condRight, L1);
+
+            fprintf(tacFile, "if (%s < %s) goto L%d\n", condLeft, condRight, L1);
             break;
         }
 
         case NODE_TYPE_DO_WHILE: {
             int L1 = newLabel();
-            printf("L%d:\n", L1);
+            fprintf(tacFile, "L%d:\n", L1);
             generate_stmt(node->ptr2);
 
             char condLeft[32], condRight[32];
             generate_expr(node->ptr1->ptr1, condLeft);
             generate_expr(node->ptr1->ptr2, condRight);
 
-            printf("if (%s < %s) goto L%d\n", condLeft, condRight, L1);
+            fprintf(tacFile, "if (%s < %s) goto L%d\n", condLeft, condRight, L1);
             break;
         }
 
@@ -189,7 +209,13 @@ void generate_stmt(ast_node* node) {
 // Entry point
 // -----------------------------------------
 void generate_3AC(ast_node* root) {
-    printf("=== THREE ADDRESS CODE ===\n");
+    tacFile = fopen("targetFile.txt", "w");
+    if (!tacFile) {
+        printf("Error: cannot open targetFile.txt\n");
+        return;
+    }
+
     generate_stmt(root);
-    printf("===========================\n");
+
+    fclose(tacFile);
 }
