@@ -1,13 +1,9 @@
 decl
-    int temp, i, a, b, c, d;
-    int arr[10];
+    int a, b, c, d, i;
+    int arr[5];
 enddecl
 
 begin
-    a = b * c;
-    a = b * c;
-
-    if(a > b) then
-        a = c;
-    endif;
+    a = b + c + c + c + b + c;
+    b = b + c + c + c + b + c;
 end

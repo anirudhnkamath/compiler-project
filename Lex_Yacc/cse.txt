@@ -1,9 +1,12 @@
-t1 = b * c
-a = t1
-t2 = b * c
-a = t2
-if (a < b) goto L1
-goto L2
-L1:
-a = c
-L2:
+t1 = b + c
+t2 = t1 + c
+t3 = t2 + c
+t4 = t3 + b
+t5 = t4 + c
+a = t5
+t6 = t1
+t7 = t6 + c
+t8 = t7 + c
+t9 = t8 + b
+t10 = t9 + c
+b = t10
