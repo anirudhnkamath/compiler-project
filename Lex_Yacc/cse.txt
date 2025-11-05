@@ -1,0 +1,9 @@
+t1 = b * c
+a = t1
+t2 = b * c
+a = t2
+if (a < b) goto L1
+goto L2
+L1:
+a = c
+L2:
