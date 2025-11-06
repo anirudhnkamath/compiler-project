@@ -1,13 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-// External variables from lexer
-extern int lineNum;
-extern char currentLine[512];
-extern int hasConditional;
-
-// Linked list node for storing expressions
+/* --------------------- Linked List Definition ---------------------- */
 typedef struct ExprNode {
     char lhs[64];
     char rhs[256];
@@ -16,23 +12,32 @@ typedef struct ExprNode {
 
 ExprNode* exprList = NULL;
 
-// Function prototypes
-extern int yylex();
-extern FILE* yyin;
+
+
+/* --------------------- Function Declarations ---------------------- */
 void addOrUpdateExpr(const char* lhs, const char* rhs);
 char* findExpr(const char* rhs);
 void invalidateVar(const char* varName);
 void freeExprList();
 void optimizeLine(char* line);
+int checkForConditional(const char* filename);
+
+
+
+/* --------------------- Function Definitions ---------------------- */
 
 int main(int argc, char** argv) {
     FILE* inputFile;
     FILE* outputFile;
+    int hasConditional = 0;
 
     if (argc < 3) {
         printf("Usage: %s <input_tac_file> <output_optimized_file>\n", argv[0]);
         return 1;
     }
+
+    // Check for conditionals in the file
+    hasConditional = checkForConditional(argv[1]);
 
     inputFile = fopen(argv[1], "r");
     if (!inputFile) {
@@ -47,23 +52,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    yyin = inputFile;
-    
-    // First pass: Check for conditionals
-    while (yylex() != 0);
-    
     if (hasConditional) {
         printf("Conditional detected, no changes made\n");
-        rewind(inputFile);
         char line[512];
         while (fgets(line, sizeof(line), inputFile)) {
             fprintf(outputFile, "%s", line);
         }
     } else {
         printf("CSE started\n");
-        fclose(inputFile);
-        inputFile = fopen(argv[1], "r");
-        
         char line[512];
         while (fgets(line, sizeof(line), inputFile)) {
             optimizeLine(line);
@@ -74,13 +70,35 @@ int main(int argc, char** argv) {
 
     fclose(inputFile);
     fclose(outputFile);
-    freeExprList();
+    return 0;
+}
+
+int checkForConditional(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    
+    char line[512];
+    while (fgets(line, sizeof(line), file)) {
+        char* ptr = line;
+        if (*ptr == 'L') {
+            ptr++;
+            int hasDigit = 0;
+            while (isdigit(*ptr)) {
+                hasDigit = 1;
+                ptr++;
+            }
+            if (hasDigit && *ptr == ':') {
+                fclose(file);
+                return 1;
+            }
+        }
+    }
+
+    fclose(file);
     return 0;
 }
 
 void optimizeLine(char* line) {
-
-    // Handle read statement - invalidate the variable
+    
     if (strstr(line, "read(") != NULL) {
         char* start = strstr(line, "read(") + 5;
         char varName[64];
@@ -118,7 +136,6 @@ void optimizeLine(char* line) {
     strncpy(rhs, rhsStart, rhsLen);
     rhs[rhsLen] = '\0';
     
-    // Check if RHS has operators (is it a computation?)
     int hasOp = 0;
     for (int i = 0; rhs[i]; i++) {
         if (rhs[i] == '+' || rhs[i] == '-' || rhs[i] == '*' || 
@@ -129,17 +146,14 @@ void optimizeLine(char* line) {
     }
     
     if (hasOp) {
-        // Check if this expression already exists
         char* existingVar = findExpr(rhs);
         if (existingVar != NULL) {
             sprintf(line, "%s = %s\n", lhs, existingVar);
-            printf("Optimized: %s = %s (CSE applied)\n", lhs, existingVar);
         } else {
             addOrUpdateExpr(lhs, rhs);
         }
     }
     
-    // Always invalidate LHS variable from expression list
     invalidateVar(lhs);
 }
 
@@ -206,14 +220,5 @@ void invalidateVar(const char* varName) {
             prev = current;
             current = current->next;
         }
-    }
-}
-
-void freeExprList() {
-    ExprNode* current = exprList;
-    while (current != NULL) {
-        ExprNode* next = current->next;
-        free(current);
-        current = next;
     }
 }
