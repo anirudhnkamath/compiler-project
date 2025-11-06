@@ -4,6 +4,5 @@ decl
 enddecl
 
 begin
-    a = b + c + c + c + b + c;
-    b = b + c + c + c + b + c;
+    
 end
