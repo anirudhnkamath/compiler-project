@@ -39,6 +39,10 @@ ast_node* create_connector_node(ast_node* left, ast_node* right){
 ast_node* create_id_node(ast_node* id){
 
     gst_node* global_temp = look_up(id->name);
+    if(global_temp->inner_size != 0) {
+        yyerror("Invalid use of ID");
+    }
+
     if(global_temp == NULL){
         yyerror("ID is not neither declared in local symbol table nor declared in global table.\n");
     }

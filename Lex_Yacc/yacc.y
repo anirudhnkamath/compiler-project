@@ -86,7 +86,7 @@ WhileStmt   :   WHILE '(' expr ')' DO Slist END_WHILE EOL        {  $$ = create_
             ;
 RptUntlStmt :   REPEAT '{' Slist '}' UNTILL '(' expr ')' EOL     {  $$ = create_loop_node(NODE_TYPE_REPEAT, $7, $3); }
             ;
-DoWhileStmt :   DO '{' Slist '}'  WHILE '(' expr ')' EOL         {  $$ = create_loop_node(NODE_TYPE_WHILE, $7, $3); }
+DoWhileStmt :   DO '{' Slist '}'  WHILE '(' expr ')' EOL         {  $$ = create_loop_node(NODE_TYPE_DO_WHILE, $7, $3); }
             ;
 
 expr        :   expr ADD expr                       { $$ = create_arithmatic_node(NODE_TYPE_PLUS, $1, $3);  }
