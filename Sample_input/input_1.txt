@@ -4,5 +4,6 @@ decl
 enddecl
 
 begin
-    
+    c = a * b;
+    b = b * a;
 end
