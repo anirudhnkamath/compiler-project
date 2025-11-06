@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "./opt.h"
+#include "./optimize.h"
 
 expl_node* head = NULL;
 

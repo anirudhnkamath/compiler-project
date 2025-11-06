@@ -1,4 +1,4 @@
-t1 = a + b
+t1 = a * b
 c = t1
-t2 = b + a
+t2 = b * a
 b = t2

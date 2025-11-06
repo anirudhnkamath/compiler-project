@@ -1,5 +1,0 @@
-if (a < b) goto L1
-goto L2
-L1:
-write(a)
-L2:

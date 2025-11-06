@@ -2,7 +2,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <ctype.h>
-    #include "./opt.h"
+    #include "./optimize.h"
 
     int yylex();
     int yyerror(const char* msg);
@@ -28,7 +28,7 @@
 
 %%
 
-start   :   stmtList    {printf("Successful\n"); exit(1);}
+start   :   stmtList    {printf("Successful Termination\n"); exit(1);}
         ;
 
 stmtList:   stmtList stmt
@@ -104,7 +104,7 @@ int checkForConditional(FILE* file) {
 
 int main() {
     inputFile = fopen("targetFile.txt", "r");
-    outputFile = fopen("opt.txt", "w");
+    outputFile = fopen("optimize.txt", "w");
 
     if(checkForConditional(inputFile) == 1) {
         printf("Conditional detected, no change made\n");

@@ -1,8 +1,0 @@
-i = 0
-t1 = i * 4
-t2 = arr[t1]
-t2 = t1
-t3 = t2 * 4
-t3 = t1
-t4 = arr[t3]
-read(t4)

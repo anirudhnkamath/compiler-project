@@ -1,4 +1,4 @@
-bison -dy opt.y
-lex opt.l
-gcc lex.yy.c y.tab.c opt.c
+bison -dy optimize.y
+lex optimize.l
+gcc lex.yy.c y.tab.c optimize.c
 ./a.out

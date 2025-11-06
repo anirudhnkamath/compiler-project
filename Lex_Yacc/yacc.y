@@ -5,7 +5,6 @@
     #include "./../Three_addr_code_gen/Tac_gen.h"
     void yyerror(const char* error);
     int yylex(void);
-    FILE *output;
 %}
 
 %union {
@@ -130,9 +129,7 @@ int main(int argc, char **argv){
             return 1;
         }
     }
-    output = fopen("output.xsm", "w");
     yyparse();
 
-    fclose(output);
     return 0;
 }
