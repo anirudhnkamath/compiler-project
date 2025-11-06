@@ -1,0 +1,13 @@
+decl
+    int a;
+    int b;
+    int c;
+enddecl
+
+begin
+    a = 5;
+    b = 10;
+    write(a+b);
+    read(c);
+    write(a+b-c);
+end

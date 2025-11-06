@@ -1,0 +1,16 @@
+a = 0
+b = 100
+L1:
+if (a < 10) goto L2
+goto L3
+L2:
+if (a < 5) goto L4
+goto L5
+L4:
+write(b)
+L5:
+write(a)
+t1 = a + 1
+a = t1
+goto L1
+L3:

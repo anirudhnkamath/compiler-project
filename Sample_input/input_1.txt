@@ -1,9 +1,16 @@
 decl
-    int a, b, c, d, i;
-    int arr[5];
+    int a;
+    int b;
 enddecl
 
 begin
-    c = a * b;
-    b = b * a;
+    a = 0;
+    b = 100;
+    while(a < 10) do
+        if(a < 5) then
+            write(b);
+        endif;
+        write(a);
+        a = a + 1;
+    endwhile;
 end
